@@ -11,4 +11,4 @@ Allow: /
 # Sitemap location - UPDATE THIS with your actual domain
 # Format: https://yourusername.github.io/repository-name/sitemap.xml
 # Or: https://yourdomain.com/sitemap.xml
-Sitemap: https://yourusername.github.io/repository-name/sitemap.xml
+Sitemap: https://github.com/Genkidamma/3DObjectEdit.git/sitemap.xml
