@@ -12,35 +12,35 @@
         http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
   <!-- Home Page -->
   <url>
-    <loc>https://yourusername.github.io/repository-name/</loc>
+    <loc>https://https://github.com/Genkidamma/3DObjectEdit.git/</loc>
     <lastmod>2024-12-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.00</priority>
   </url>
   <!-- Configurator Page - Main Feature -->
   <url>
-    <loc>https://yourusername.github.io/repository-name/#/configurator</loc>
+    <loc>https://https://github.com/Genkidamma/3DObjectEdit.git/#/configurator</loc>
     <lastmod>2024-12-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.90</priority>
   </url>
   <!-- About Page -->
   <url>
-    <loc>https://yourusername.github.io/repository-name/#/about</loc>
+    <loc>https://https://github.com/Genkidamma/3DObjectEdit.git/#/about</loc>
     <lastmod>2024-12-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <!-- FAQ Page -->
   <url>
-    <loc>https://yourusername.github.io/repository-name/#/faq</loc>
+    <loc>https://https://github.com/Genkidamma/3DObjectEdit.git/#/faq</loc>
     <lastmod>2024-12-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <!-- Contact Page -->
   <url>
-    <loc>https://yourusername.github.io/repository-name/#/contact</loc>
+    <loc>https://https://github.com/Genkidamma/3DObjectEdit.git/#/contact</loc>
     <lastmod>2024-12-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.70</priority>
