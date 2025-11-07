@@ -1,0 +1,30 @@
+<div class="bg-gray-900 py-16">
+  <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-3xl mx-auto text-center">
+      <h1 class="text-4xl font-extrabold text-white sm:text-5xl">Frequently Asked Questions</h1>
+      <p class="mt-4 text-xl text-gray-300">
+        Have questions? We've got answers.
+      </p>
+    </div>
+
+    <div class="mt-12 max-w-3xl mx-auto space-y-4">
+      @for(faq of faqs(); track faq.question) {
+        <div class="bg-gray-800 rounded-lg shadow-md">
+          <button (click)="toggleFaq(faq)" class="w-full flex justify-between items-center text-left p-6">
+            <h2 class="text-lg font-medium text-white">{{ faq.question }}</h2>
+            <span class="text-indigo-400">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 transition-transform duration-300" [class.rotate-180]="faq.open()" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </span>
+          </button>
+          @if (faq.open()) {
+            <div class="px-6 pb-6 text-gray-400">
+              <p>{{ faq.answer }}</p>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+</div>

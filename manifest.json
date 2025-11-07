@@ -1,0 +1,31 @@
+{
+  "short_name": "3D Configurator",
+  "name": "3D Product Configurator & Material Editor",
+  "description": "Professional 3D model configurator with AI-powered material generation",
+  "icons": [
+    {
+      "src": "./favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "./icons/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./icons/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "theme_color": "#111827",
+  "background_color": "#1f2937",
+  "categories": ["design", "productivity", "utilities"]
+}

@@ -1,0 +1,428 @@
+<!-- 
+  PRODUCTION CONFIGURATOR COMPONENT:
+  Accessible 3D model configurator with ARIA labels and keyboard navigation
+  Mobile-responsive layout with collapsible sidebar
+-->
+<div class="w-full h-full bg-gray-900 text-white font-sans flex flex-col md:flex-row" role="main" aria-label="3D Model Configurator">
+  <!-- 3D Viewer Area -->
+  <div class="flex-grow h-full relative" #canvasContainer role="region" aria-label="3D Model Viewer">
+    <canvas 
+      #canvas 
+      class="absolute top-0 left-0 w-full h-full outline-none focus:outline-none" 
+      tabindex="0"
+      aria-label="3D model canvas - Use mouse or touch to rotate, zoom, and pan the model"
+      role="img"
+      [attr.aria-busy]="isLoading()">
+    </canvas>
+
+    <!-- Initial State Message -->
+    @if (!modelLoaded()) {
+      <div class="absolute inset-0 flex items-center justify-center pointer-events-none" role="status" aria-live="polite">
+        <div class="text-center bg-gray-800 bg-opacity-50 p-6 rounded-lg backdrop-blur-sm">
+          <h1 class="text-2xl font-bold text-white drop-shadow-md mb-4">3D Model Configurator</h1>
+          <p class="text-lg">Upload an .obj model to begin.</p>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Right Sidebar: Controls - Mobile responsive -->
+  <aside 
+    class="w-full md:w-96 h-auto md:h-full bg-gray-800 border-t md:border-t-0 md:border-l border-gray-700 flex flex-col shadow-2xl"
+    role="complementary"
+    aria-label="Model configuration controls">
+    <header class="p-4 border-b border-gray-700 flex-shrink-0">
+      <h2 class="text-xl font-bold">Controls</h2>
+    </header>
+
+    <!-- Scrollable content area -->
+    <div class="flex-grow overflow-y-auto custom-scrollbar p-4 space-y-2">
+      <!-- Accordion Item: Model Controls -->
+      <div class="bg-gray-700 rounded-lg">
+        <button 
+          (click)="togglePanel('model')" 
+          class="w-full flex justify-between items-center p-3 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 focus:ring-offset-gray-700 rounded-lg"
+          [attr.aria-expanded]="activePanel() === 'model'"
+          aria-controls="model-controls-panel"
+          aria-label="Toggle model controls panel">
+          <span>Model Controls</span>
+          <span 
+            class="transform transition-transform" 
+            [class.rotate-180]="activePanel() === 'model'"
+            aria-hidden="true">&#9660;</span>
+        </button>
+        @if(activePanel() === 'model') {
+          <div id="model-controls-panel" class="p-3 border-t border-gray-600" role="region" aria-labelledby="model-controls-heading">
+            <input 
+              type="file" 
+              #fileInput 
+              (change)="onFileSelected($event)" 
+              accept=".obj" 
+              class="hidden" 
+              aria-label="Select OBJ model file to upload"
+              id="file-input" />
+            <button 
+              (click)="fileInput.click()" 
+              class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg shadow-lg transition-transform transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 focus:ring-offset-gray-700"
+              aria-label="Upload OBJ model file">
+              Upload OBJ Model
+            </button>
+            @if (modelLoaded()) {
+              <h3 id="mesh-parts-heading" class="text-md font-semibold mt-4 mb-2">Mesh Parts</h3>
+              <div 
+                class="space-y-2 max-h-48 overflow-y-auto custom-scrollbar" 
+                role="list"
+                aria-labelledby="mesh-parts-heading">
+                @for (part of meshParts(); track part.id) {
+                  <div class="bg-gray-600 p-2 rounded-md text-sm" role="listitem">
+                    <p class="font-bold truncate" aria-label="Part name: {{ part.name }}">{{ part.name }}</p>
+                    <p aria-label="Vertex count: {{ part.vertexCount.toLocaleString() }}, Face count: {{ part.faceCount.toLocaleString() }}">
+                      Verts: {{ part.vertexCount.toLocaleString() }} | Faces: {{ part.faceCount.toLocaleString() }}
+                    </p>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      @if(modelLoaded()) {
+        <!-- Accordion Item: Transform -->
+        <div class="bg-gray-700 rounded-lg">
+          <button 
+            (click)="togglePanel('transform')" 
+            class="w-full flex justify-between items-center p-3 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 focus:ring-offset-gray-700 rounded-lg"
+            [attr.aria-expanded]="activePanel() === 'transform'"
+            aria-controls="transform-panel"
+            aria-label="Toggle transform controls panel">
+            <span>Transform</span>
+            <span 
+              class="transform transition-transform" 
+              [class.rotate-180]="activePanel() === 'transform'"
+              aria-hidden="true">&#9660;</span>
+          </button>
+          @if(activePanel() === 'transform') {
+            <div id="transform-panel" class="p-3 border-t border-gray-600 space-y-3" role="region" aria-labelledby="transform-heading">
+              <!-- Scale Controls -->
+              @for(axis of ['x', 'y', 'z']; track axis) {
+                <div>
+                  <label 
+                    [for]="'scale-' + axis" 
+                    class="block text-sm font-medium mb-1">
+                    Scale {{ axis.toUpperCase() }}
+                  </label>
+                  <div class="flex items-center space-x-2">
+                    <input 
+                      type="range" 
+                      [id]="'scale-' + axis"
+                      min="0.1" 
+                      max="5" 
+                      step="0.05" 
+                      [value]="transform().scale[axis]" 
+                      (input)="onScaleChange(axis, $event)" 
+                      class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 focus:ring-offset-gray-700"
+                      [attr.aria-label]="'Scale ' + axis.toUpperCase() + ' axis, current value: ' + transform().scale[axis].toFixed(2)"
+                      [attr.aria-valuenow]="transform().scale[axis]"
+                      aria-valuemin="0.1"
+                      aria-valuemax="5"
+                      role="slider">
+                    <span 
+                      class="text-sm font-mono w-12 text-center" 
+                      [attr.aria-hidden]="true">{{ transform().scale[axis].toFixed(2) }}</span>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+        
+        <!-- Accordion Item: Material -->
+        <div class="bg-gray-700 rounded-lg">
+          <button 
+            (click)="togglePanel('material')" 
+            class="w-full flex justify-between items-center p-3 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 focus:ring-offset-gray-700 rounded-lg"
+            [attr.aria-expanded]="activePanel() === 'material'"
+            aria-controls="material-panel"
+            aria-label="Toggle material controls panel">
+            <span>Material</span>
+            <span 
+              class="transform transition-transform" 
+              [class.rotate-180]="activePanel() === 'material'"
+              aria-hidden="true">&#9660;</span>
+          </button>
+          @if(activePanel() === 'material') {
+            <div id="material-panel" class="p-3 border-t border-gray-600 space-y-3" role="region" aria-labelledby="material-heading">
+              <!-- Color -->
+              <div class="flex justify-between items-center">
+                <label for="material-color" class="block text-sm font-medium">Color</label>
+                <input 
+                  type="color" 
+                  id="material-color"
+                  [value]="material().color" 
+                  (input)="onMaterialPropChange('color', $event)" 
+                  class="p-1 h-8 w-14 block bg-gray-600 border border-gray-500 cursor-pointer rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 focus:ring-offset-gray-700"
+                  aria-label="Material color picker, current color: {{ material().color }}">
+              </div>
+              <!-- Roughness -->
+              <div>
+                <label for="material-roughness" class="block text-sm font-medium mb-1">Roughness</label>
+                 <div class="flex items-center space-x-2">
+                    <input 
+                      type="range" 
+                      id="material-roughness"
+                      min="0" 
+                      max="1" 
+                      step="0.01" 
+                      [value]="material().roughness" 
+                      (input)="onMaterialPropChange('roughness', $event)" 
+                      class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 focus:ring-offset-gray-700"
+                      [attr.aria-label]="'Material roughness, current value: ' + material().roughness.toFixed(2)"
+                      [attr.aria-valuenow]="material().roughness"
+                      aria-valuemin="0"
+                      aria-valuemax="1"
+                      role="slider">
+                    <span 
+                      class="text-sm font-mono w-12 text-center" 
+                      [attr.aria-hidden]="true">{{ material().roughness.toFixed(2) }}</span>
+                 </div>
+              </div>
+              <!-- Metalness -->
+              <div>
+                <label for="material-metalness" class="block text-sm font-medium mb-1">Metalness</label>
+                 <div class="flex items-center space-x-2">
+                    <input 
+                      type="range" 
+                      id="material-metalness"
+                      min="0" 
+                      max="1" 
+                      step="0.01" 
+                      [value]="material().metalness" 
+                      (input)="onMaterialPropChange('metalness', $event)" 
+                      class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 focus:ring-offset-gray-700"
+                      [attr.aria-label]="'Material metalness, current value: ' + material().metalness.toFixed(2)"
+                      [attr.aria-valuenow]="material().metalness"
+                      aria-valuemin="0"
+                      aria-valuemax="1"
+                      role="slider">
+                    <span 
+                      class="text-sm font-mono w-12 text-center" 
+                      [attr.aria-hidden]="true">{{ material().metalness.toFixed(2) }}</span>
+                 </div>
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Accordion Item: AI Texture -->
+        <div class="bg-gray-700 rounded-lg">
+          <button 
+            (click)="togglePanel('ai-texture')" 
+            class="w-full flex justify-between items-center p-3 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 focus:ring-offset-gray-700 rounded-lg"
+            [attr.aria-expanded]="activePanel() === 'ai-texture'"
+            aria-controls="ai-texture-panel"
+            aria-label="Toggle AI texture generation panel">
+            <span>AI Texture Generation</span>
+            <span 
+              class="transform transition-transform" 
+              [class.rotate-180]="activePanel() === 'ai-texture'"
+              aria-hidden="true">&#9660;</span>
+          </button>
+          @if(activePanel() === 'ai-texture') {
+            <div id="ai-texture-panel" class="p-3 border-t border-gray-600 space-y-3" role="region" aria-labelledby="ai-texture-heading">
+              <p class="text-sm text-gray-400">Describe a material (e.g., "rusty metal panels", "glowing alien rock").</p>
+              <textarea 
+                id="texture-prompt"
+                rows="3" 
+                class="w-full bg-gray-600 border border-gray-500 rounded-md p-2 text-white placeholder-gray-400 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none" 
+                placeholder="Enter texture prompt..." 
+                (input)="aiTexturePrompt.set($any($event.target).value)"
+                [value]="aiTexturePrompt()"
+                aria-label="Enter a description of the material texture you want to generate"
+                aria-describedby="texture-prompt-help">{{ aiTexturePrompt() }}</textarea>
+              <p id="texture-prompt-help" class="sr-only">Describe the material texture you want AI to generate, such as 'rusty metal' or 'glowing alien rock'</p>
+              
+              @if (!generatedTextures().albedo) {
+                <button 
+                  (click)="generateAiTexture()" 
+                  [disabled]="isGeneratingTexture() || !aiTexturePrompt()" 
+                  class="w-full flex justify-center items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-lg shadow-lg disabled:bg-gray-500 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-teal-400 focus:ring-offset-2 focus:ring-offset-gray-700"
+                  [attr.aria-busy]="isGeneratingTexture()"
+                  aria-label="Generate AI texture based on the description">
+                  @if (isGeneratingTexture()) {
+                    <div class="w-5 h-5 border-2 border-dashed rounded-full animate-spin border-white" aria-hidden="true"></div>
+                    <span>Generating...</span>
+                  } @else {
+                    <span>Generate Texture</span>
+                  }
+                </button>
+              } @else {
+                <div class="grid grid-cols-2 gap-2 mt-4">
+                  @if(generatedTextures().albedo; as albedoUrl) {
+                    <div>
+                      <img [src]="albedoUrl" alt="Generated Albedo Texture" class="w-full h-auto rounded-md border border-gray-600">
+                      <p class="text-xs text-center mt-1 text-gray-400">Base Color</p>
+                    </div>
+                  }
+                  @if(generatedTextures().normal; as normalUrl) {
+                    <div>
+                      <img [src]="normalUrl" alt="Generated Normal Map" class="w-full h-auto rounded-md border border-gray-600">
+                      <p class="text-xs text-center mt-1 text-gray-400">Normal Map</p>
+                    </div>
+                  }
+                </div>
+
+                <!-- Texture Tiling Controls -->
+                <div class="pt-3 mt-3 border-t border-gray-600 space-y-3">
+                  <h4 class="font-semibold text-sm">Texture Tiling</h4>
+                  <!-- U (Horizontal) Tiling -->
+                  <div>
+                    <label class="block text-sm font-medium mb-1">Horizontal (U)</label>
+                    <div class="flex items-center space-x-2">
+                      <input type="range" min="1" max="20" step="1" [value]="textureTiling().u" (input)="onTilingChange('u', $event)" class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer">
+                      <span class="text-sm font-mono w-12 text-center">{{ textureTiling().u }}x</span>
+                    </div>
+                  </div>
+                  <!-- V (Vertical) Tiling -->
+                  <div>
+                    <label class="block text-sm font-medium mb-1">Vertical (V)</label>
+                    <div class="flex items-center space-x-2">
+                      <input type="range" min="1" max="20" step="1" [value]="textureTiling().v" (input)="onTilingChange('v', $event)" class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer">
+                      <span class="text-sm font-mono w-12 text-center">{{ textureTiling().v }}x</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="flex gap-2 mt-4">
+                  <button (click)="generateAiTexture()" [disabled]="isGeneratingTexture() || !aiTexturePrompt()" class="w-full flex justify-center items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-lg shadow-lg disabled:bg-gray-500 disabled:cursor-not-allowed">
+                    @if (isGeneratingTexture()) {
+                      <div class="w-5 h-5 border-2 border-dashed rounded-full animate-spin border-white"></div>
+                      <span>Generating...</span>
+                    } @else {
+                      <span>Re-generate</span>
+                    }
+                  </button>
+                  <button (click)="resetMaterial()" [disabled]="isGeneratingTexture()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg shadow-lg disabled:bg-gray-500 disabled:cursor-not-allowed">
+                    Reset Material
+                  </button>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Accordion Item: Lighting -->
+        <div class="bg-gray-700 rounded-lg">
+          <button 
+            (click)="togglePanel('lighting')" 
+            class="w-full flex justify-between items-center p-3 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 focus:ring-offset-gray-700 rounded-lg"
+            [attr.aria-expanded]="activePanel() === 'lighting'"
+            aria-controls="lighting-panel"
+            aria-label="Toggle lighting controls panel">
+            <span>Lighting</span>
+            <span 
+              class="transform transition-transform" 
+              [class.rotate-180]="activePanel() === 'lighting'"
+              aria-hidden="true">&#9660;</span>
+          </button>
+          @if(activePanel() === 'lighting') {
+            <div class="p-3 border-t border-gray-600 space-y-3">
+              <!-- Ambient Light -->
+              <h4 class="font-semibold">Ambient Light</h4>
+              <div class="flex justify-between items-center">
+                <label class="block text-sm font-medium">Color</label>
+                <input type="color" [value]="sceneLighting().ambientColor" (input)="onLightPropChange('ambientColor', $event)" class="p-1 h-8 w-14 block bg-gray-600 border border-gray-500 cursor-pointer rounded-lg">
+              </div>
+              <div>
+                <label class="block text-sm font-medium mb-1">Intensity</label>
+                <div class="flex items-center space-x-2">
+                  <input type="range" min="0" max="5" step="0.1" [value]="sceneLighting().ambientIntensity" (input)="onLightPropChange('ambientIntensity', $event)" class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer">
+                  <span class="text-sm font-mono w-12 text-center">{{ sceneLighting().ambientIntensity.toFixed(2) }}</span>
+                </div>
+              </div>
+              <!-- Directional Light -->
+              <h4 class="font-semibold pt-2 border-t border-gray-600">Directional Light</h4>
+              <div class="flex justify-between items-center">
+                <label class="block text-sm font-medium">Color</label>
+                <input type="color" [value]="sceneLighting().directionalColor" (input)="onLightPropChange('directionalColor', $event)" class="p-1 h-8 w-14 block bg-gray-600 border border-gray-500 cursor-pointer rounded-lg">
+              </div>
+              <div>
+                <label class="block text-sm font-medium mb-1">Intensity</label>
+                <div class="flex items-center space-x-2">
+                  <input type="range" min="0" max="10" step="0.1" [value]="sceneLighting().directionalIntensity" (input)="onLightPropChange('directionalIntensity', $event)" class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer">
+                  <span class="text-sm font-mono w-12 text-center">{{ sceneLighting().directionalIntensity.toFixed(2) }}</span>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Accordion Item: Export -->
+        <div class="bg-gray-700 rounded-lg">
+          <button 
+            (click)="togglePanel('export')" 
+            class="w-full flex justify-between items-center p-3 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 focus:ring-offset-gray-700 rounded-lg"
+            [attr.aria-expanded]="activePanel() === 'export'"
+            aria-controls="export-panel"
+            aria-label="Toggle export options panel">
+            <span>Export</span>
+            <span 
+              class="transform transition-transform" 
+              [class.rotate-180]="activePanel() === 'export'"
+              aria-hidden="true">&#9660;</span>
+          </button>
+          @if(activePanel() === 'export') {
+            <div id="export-panel" class="p-3 border-t border-gray-600 space-y-3" role="region" aria-labelledby="export-heading">
+              <button 
+                (click)="exportGLB()" 
+                class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2 focus:ring-offset-gray-700"
+                aria-label="Export model as GLB file format">
+                Export as .GLB
+              </button>
+              <button 
+                (click)="exportSTL()" 
+                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-gray-700"
+                aria-label="Export model as STL file format for 3D printing">
+                Export as .STL (3D Print)
+              </button>
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="flex-grow flex items-center justify-center text-center text-gray-400 p-4">
+          <p>Awaiting model upload...</p>
+        </div>
+      }
+    </div>
+  </aside>
+
+  <!-- Loading Indicator -->
+  @if (isLoading()) {
+    <div 
+      class="absolute inset-0 bg-gray-900 bg-opacity-70 flex flex-col items-center justify-center pointer-events-auto z-50" 
+      role="status" 
+      aria-live="polite"
+      aria-label="Loading model">
+      <div class="w-16 h-16 border-4 border-dashed rounded-full animate-spin border-indigo-500" aria-hidden="true"></div>
+      <p class="mt-4 text-lg text-white">Loading Model...</p>
+    </div>
+  }
+
+  <!-- Error Message -->
+  @if (errorMessage(); as msg) {
+    <div 
+      class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-red-800 bg-opacity-80 p-6 rounded-lg backdrop-blur-sm text-center shadow-2xl border border-red-600 pointer-events-auto z-50"
+      role="alert"
+      aria-live="assertive"
+      aria-label="Error message">
+      <h3 class="text-xl font-bold mb-2">Error</h3>
+      <p>{{ msg }}</p>
+      <button 
+        (click)="errorMessage.set(null)" 
+        class="mt-4 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 focus:ring-offset-red-800"
+        aria-label="Close error message">
+        Close
+      </button>
+    </div>
+  }
+</div>

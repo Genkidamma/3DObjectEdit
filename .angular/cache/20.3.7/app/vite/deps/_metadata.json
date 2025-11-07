@@ -1,0 +1,76 @@
+{
+  "hash": "28dbcd68",
+  "configHash": "1ec1550a",
+  "lockfileHash": "690d61bd",
+  "browserHash": "dfe5b936",
+  "optimized": {
+    "@angular/core": {
+      "src": "../../../../../../node_modules/@angular/core/fesm2022/core.mjs",
+      "file": "@angular_core.js",
+      "fileHash": "f3cd0268",
+      "needsInterop": false
+    },
+    "@angular/platform-browser": {
+      "src": "../../../../../../node_modules/@angular/platform-browser/fesm2022/platform-browser.mjs",
+      "file": "@angular_platform-browser.js",
+      "fileHash": "d7da925c",
+      "needsInterop": false
+    },
+    "@angular/router": {
+      "src": "../../../../../../node_modules/@angular/router/fesm2022/router.mjs",
+      "file": "@angular_router.js",
+      "fileHash": "a85c0748",
+      "needsInterop": false
+    },
+    "@google/genai": {
+      "src": "../../../../../../node_modules/@google/genai/dist/web/index.mjs",
+      "file": "@google_genai.js",
+      "fileHash": "e3a600d3",
+      "needsInterop": false
+    },
+    "three": {
+      "src": "../../../../../../node_modules/three/build/three.module.js",
+      "file": "three.js",
+      "fileHash": "26724ab5",
+      "needsInterop": false
+    },
+    "three/addons/controls/OrbitControls.js": {
+      "src": "../../../../../../node_modules/three/examples/jsm/controls/OrbitControls.js",
+      "file": "three_addons_controls_OrbitControls__js.js",
+      "fileHash": "911added",
+      "needsInterop": false
+    },
+    "three/addons/exporters/GLTFExporter.js": {
+      "src": "../../../../../../node_modules/three/examples/jsm/exporters/GLTFExporter.js",
+      "file": "three_addons_exporters_GLTFExporter__js.js",
+      "fileHash": "34fabe2c",
+      "needsInterop": false
+    },
+    "three/addons/exporters/STLExporter.js": {
+      "src": "../../../../../../node_modules/three/examples/jsm/exporters/STLExporter.js",
+      "file": "three_addons_exporters_STLExporter__js.js",
+      "fileHash": "6c6ad589",
+      "needsInterop": false
+    },
+    "three/addons/loaders/OBJLoader.js": {
+      "src": "../../../../../../node_modules/three/examples/jsm/loaders/OBJLoader.js",
+      "file": "three_addons_loaders_OBJLoader__js.js",
+      "fileHash": "0f52906b",
+      "needsInterop": false
+    }
+  },
+  "chunks": {
+    "chunk-ZXSRB375": {
+      "file": "chunk-ZXSRB375.js"
+    },
+    "chunk-LNT7H5BL": {
+      "file": "chunk-LNT7H5BL.js"
+    },
+    "chunk-EMY5DEFS": {
+      "file": "chunk-EMY5DEFS.js"
+    },
+    "chunk-GOMI4DH3": {
+      "file": "chunk-GOMI4DH3.js"
+    }
+  }
+}
