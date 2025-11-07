@@ -1,0 +1,14 @@
+# robots.txt for 3D Model Configurator
+# PRODUCTION NOTE: Update the Sitemap URL with your actual domain
+
+User-agent: *
+Allow: /
+
+# Disallow admin or private paths if any
+# Disallow: /admin/
+# Disallow: /private/
+
+# Sitemap location - UPDATE THIS with your actual domain
+# Format: https://yourusername.github.io/repository-name/sitemap.xml
+# Or: https://yourdomain.com/sitemap.xml
+Sitemap: https://yourusername.github.io/repository-name/sitemap.xml

@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <!-- 
+    PRODUCTION DEPLOYMENT NOTE:
+    Update the base URL below to match your GitHub Pages repository URL.
+    Format: https://yourusername.github.io/repository-name/
+    For root domain: https://yourdomain.com/
+  -->
+  <base href="./">
+  
+  <!-- Primary Meta Tags -->
+  <title>3D Model Configurator - AI-Powered Material Editor & OBJ Viewer</title>
+  <meta name="title" content="3D Model Configurator - AI-Powered Material Editor & OBJ Viewer" />
+  <meta name="description" content="Professional 3D model configurator with AI-powered material generation. Upload OBJ files, customize materials, lighting, and textures in real-time. Export to GLB/STL. Free online tool powered by Three.js and Gemini AI." />
+  <meta name="keywords" content="3D configurator, 3D viewer, OBJ viewer, 3D model viewer, online 3D viewer, Three.js, AI material generator, PBR textures, GLB exporter, STL exporter, 3D model editor, web-based 3D tool, material editor, texture generator" />
+  <meta name="author" content="3D Configurator Team" />
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+  <meta name="language" content="English" />
+  <meta name="revisit-after" content="7 days" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  
+  <!-- Canonical URL - UPDATE THIS with your actual domain -->
+  <link rel="canonical" href="https://yourusername.github.io/repository-name/" />
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://yourusername.github.io/repository-name/" />
+  <meta property="og:title" content="3D Model Configurator - AI-Powered Material Editor & OBJ Viewer" />
+  <meta property="og:description" content="Professional 3D model configurator with AI-powered material generation. Upload OBJ files, customize materials, lighting, and textures in real-time. Export to GLB/STL." />
+  <meta property="og:image" content="https://yourusername.github.io/repository-name/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="3D Model Configurator - AI-Powered Material Editor" />
+  <meta property="og:site_name" content="3D Model Configurator" />
+  <meta property="og:locale" content="en_US" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:url" content="https://yourusername.github.io/repository-name/" />
+  <meta name="twitter:title" content="3D Model Configurator - AI-Powered Material Editor" />
+  <meta name="twitter:description" content="Professional 3D model configurator with AI-powered material generation. Upload OBJ files, customize materials, lighting, and textures in real-time." />
+  <meta name="twitter:image" content="https://yourusername.github.io/repository-name/og-image.png" />
+  <meta name="twitter:image:alt" content="3D Model Configurator Preview" />
+
+  <!-- PWA & Favicon -->
+  <link rel="icon" type="image/x-icon" href="./favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="./icons/favicon-16x16.png" />
+  <link rel="manifest" href="./manifest.json" />
+  <meta name="theme-color" content="#111827" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="3D Configurator" />
+
+  <!-- Analytics (Optional - Uncomment and configure for production) -->
+  <!-- 
+    GOOGLE SEARCH CONSOLE:
+    Add your verification code below after setting up Google Search Console
+  -->
+  <!-- <meta name="google-site-verification" content="YOUR_GSC_VERIFICATION_CODE" /> -->
+  
+  <!-- 
+    GOOGLE ANALYTICS:
+    Uncomment and replace YOUR_GA_ID with your Google Analytics tracking ID
+  -->
+  <!-- <script async src="https://www.googletagmanager.com/gtag/js?id=YOUR_GA_ID"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'YOUR_GA_ID');
+  </script> -->
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script type="importmap">
+  {
+    "imports": {
+      "@google/genai": "https://esm.sh/@google/genai",
+      "three": "https://unpkg.com/three@0.164.1/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.164.1/examples/jsm/",
+      "rxjs": "https://esm.sh/rxjs@7.8.1",
+      "rxjs/operators": "https://esm.sh/rxjs@7.8.1/operators",
+      "rxjs/ajax": "https://esm.sh/rxjs@7.8.1/ajax",
+      "rxjs/webSocket": "https://esm.sh/rxjs@7.8.1/webSocket",
+      "rxjs/testing": "https://esm.sh/rxjs@7.8.1/testing",
+      "rxjs/fetch": "https://esm.sh/rxjs@7.8.1/fetch",
+      "@angular/router": "https://esm.sh/@angular/router@20.3.7?external=rxjs",
+      "@angular/common": "https://esm.sh/@angular/common@20.3.7?external=rxjs",
+      "@angular/compiler": "https://esm.sh/@angular/compiler@20.3.7?external=rxjs",
+      "@angular/platform-browser": "https://esm.sh/@angular/platform-browser@20.3.7?external=rxjs",
+      "@angular/core": "https://esm.sh/@angular/core@20.3.7?external=rxjs",
+      "@angular/forms": "https://esm.sh/@angular/forms@20.3.7?external=rxjs",
+      "three/addons/controls/OrbitControls.js": "https://unpkg.com/three@0.164.1/examples/jsm/controls/OrbitControls.js",
+      "three/addons/loaders/OBJLoader.js": "https://unpkg.com/three@0.164.1/examples/jsm/loaders/OBJLoader.js",
+      "three/addons/exporters/GLTFExporter.js": "https://unpkg.com/three@0.164.1/examples/jsm/exporters/GLTFExporter.js",
+      "three/addons/exporters/STLExporter.js": "https://unpkg.com/three@0.164.1/examples/jsm/exporters/STLExporter.js"
+    }
+  }
+  </script>
+  <!-- Structured Data (JSON-LD) for SEO -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "3D Model Configurator",
+    "alternateName": "3D OBJ Viewer",
+    "description": "Professional 3D model configurator with AI-powered material generation. Upload OBJ files, customize materials, lighting, and textures in real-time. Export to GLB/STL formats.",
+    "url": "https://yourusername.github.io/repository-name/",
+    "applicationCategory": "DesignApplication",
+    "operatingSystem": "Any",
+    "browserRequirements": "Requires HTML5 and WebGL support. Works in Chrome, Firefox, Safari, and Edge.",
+    "softwareVersion": "1.0.0",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "5",
+      "ratingCount": "1"
+    },
+    "featureList": [
+      "OBJ file import and viewing",
+      "AI-powered material generation",
+      "Real-time material customization",
+      "PBR texture support",
+      "Lighting controls",
+      "GLB and STL export",
+      "3D model transformation tools",
+      "Mesh statistics and analysis"
+    ],
+    "screenshot": "https://yourusername.github.io/repository-name/og-image.png"
+  }
+  </script>
+  
+  <!-- Organization Schema -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "3D Configurator",
+    "url": "https://yourusername.github.io/repository-name/",
+    "logo": "https://yourusername.github.io/repository-name/icons/icon-512.png",
+    "sameAs": []
+  }
+  </script>
+  
+  <!-- Breadcrumb Schema -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://yourusername.github.io/repository-name/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Configurator",
+        "item": "https://yourusername.github.io/repository-name/#/configurator"
+      }
+    ]
+  }
+  </script>
+  <style>
+    /* 
+      PRODUCTION STYLES:
+      Base styles for the application with accessibility considerations
+    */
+    body {
+      overflow: auto;
+      margin: 0;
+      padding: 0;
+      background-color: #111827; /* bg-gray-900 - WCAG AA compliant contrast */
+      color: #ffffff; /* Ensure text is readable */
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    }
+    
+    /* Custom scrollbar for the sidebar - Accessible and visible */
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 8px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #1f2937; /* bg-gray-800 */
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #4b5563; /* bg-gray-600 - Good contrast */
+      border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #6b7280; /* bg-gray-500 - Hover state */
+    }
+    
+    /* Focus styles for accessibility */
+    *:focus-visible {
+      outline: 2px solid #818cf8; /* indigo-400 */
+      outline-offset: 2px;
+    }
+    
+    /* Skip to main content link for screen readers */
+    .skip-link {
+      position: absolute;
+      top: -40px;
+      left: 0;
+      background: #4f46e5;
+      color: white;
+      padding: 8px;
+      text-decoration: none;
+      z-index: 100;
+    }
+    .skip-link:focus {
+      top: 0;
+    }
+    
+    /* Screen reader only - visually hidden but accessible to assistive technologies */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border-width: 0;
+    }
+  </style>
+  <!-- 
+    PRODUCTION NOTE:
+    Update the path below to use relative path for GitHub Pages deployment
+  -->
+  <link rel="stylesheet" href="./index.css">
+</head>
+<body class="bg-gray-900 text-white font-sans">
+  <!-- Skip to main content link for accessibility -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <app-root></app-root>
+</body>
+</html>

@@ -1,0 +1,5 @@
+{
+  "name": "Copy of 3D OBJ Viewer1",
+  "description": "A web-based 3D application using Three.js that allows users to upload, view, and inspect .obj files exported from Blender. The viewer automatically centers and scales the model, provides realistic lighting, and displays basic mesh statistics.",
+  "requestFramePermissions": []
+}

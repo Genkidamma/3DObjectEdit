@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  Sitemap for 3D Model Configurator
+  PRODUCTION NOTE: Update all URLs below with your actual domain
+  Format: https://yourusername.github.io/repository-name/
+  For Angular hash routing, use #/path format
+  Update lastmod dates when you make significant changes
+-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+  <!-- Home Page -->
+  <url>
+    <loc>https://yourusername.github.io/repository-name/</loc>
+    <lastmod>2024-12-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.00</priority>
+  </url>
+  <!-- Configurator Page - Main Feature -->
+  <url>
+    <loc>https://yourusername.github.io/repository-name/#/configurator</loc>
+    <lastmod>2024-12-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.90</priority>
+  </url>
+  <!-- About Page -->
+  <url>
+    <loc>https://yourusername.github.io/repository-name/#/about</loc>
+    <lastmod>2024-12-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.80</priority>
+  </url>
+  <!-- FAQ Page -->
+  <url>
+    <loc>https://yourusername.github.io/repository-name/#/faq</loc>
+    <lastmod>2024-12-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.80</priority>
+  </url>
+  <!-- Contact Page -->
+  <url>
+    <loc>https://yourusername.github.io/repository-name/#/contact</loc>
+    <lastmod>2024-12-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.70</priority>
+  </url>
+</urlset>

@@ -1,0 +1,103 @@
+<!-- 
+  PRODUCTION HEADER:
+  Accessible navigation with mobile menu support and ARIA labels
+-->
+<header class="bg-gray-800 text-white shadow-lg flex-shrink-0 z-10" role="banner">
+  <nav class="container mx-auto px-4 sm:px-6 py-4 flex justify-between items-center" role="navigation" aria-label="Main navigation">
+    <a routerLink="/" 
+       class="text-2xl font-bold text-white hover:text-indigo-400 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 focus:ring-offset-gray-800 rounded"
+       aria-label="3D Viewer - Home">
+      <span class="text-indigo-400" aria-hidden="true">3D</span> Viewer
+    </a>
+    
+    <!-- Mobile menu button -->
+    <button 
+      type="button"
+      class="md:hidden p-2 rounded-md text-gray-300 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 focus:ring-offset-gray-800"
+      aria-label="Toggle navigation menu"
+      aria-expanded="false"
+      aria-controls="mobile-menu"
+      #mobileMenuButton
+      (click)="toggleMobileMenu()">
+      <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+    </button>
+    
+    <!-- Desktop navigation -->
+    <div class="hidden md:flex items-center space-x-6" role="menubar">
+      <a routerLink="/" 
+         routerLinkActive="text-indigo-400 font-semibold" 
+         [routerLinkActiveOptions]="{exact: true}" 
+         class="text-gray-300 hover:text-indigo-400 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 focus:ring-offset-gray-800 rounded px-2 py-1"
+         role="menuitem"
+         aria-label="Navigate to Home page">Home</a>
+      <a routerLink="/configurator" 
+         routerLinkActive="text-indigo-400 font-semibold" 
+         class="text-gray-300 hover:text-indigo-400 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 focus:ring-offset-gray-800 rounded px-2 py-1"
+         role="menuitem"
+         aria-label="Navigate to 3D Configurator">Configurator</a>
+      <a routerLink="/about" 
+         routerLinkActive="text-indigo-400 font-semibold" 
+         class="text-gray-300 hover:text-indigo-400 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 focus:ring-offset-gray-800 rounded px-2 py-1"
+         role="menuitem"
+         aria-label="Navigate to About page">About</a>
+      <a routerLink="/faq" 
+         routerLinkActive="text-indigo-400 font-semibold" 
+         class="text-gray-300 hover:text-indigo-400 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 focus:ring-offset-gray-800 rounded px-2 py-1"
+         role="menuitem"
+         aria-label="Navigate to FAQ page">FAQ</a>
+      <a routerLink="/contact" 
+         routerLinkActive="text-indigo-400 font-semibold" 
+         class="text-gray-300 hover:text-indigo-400 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 focus:ring-offset-gray-800 rounded px-2 py-1"
+         role="menuitem"
+         aria-label="Navigate to Contact page">Contact</a>
+    </div>
+    
+    <!-- Mobile navigation menu -->
+    <div 
+      id="mobile-menu"
+      class="md:hidden absolute top-full left-0 right-0 bg-gray-800 border-t border-gray-700 shadow-lg transition-all duration-300"
+      [class.hidden]="!mobileMenuOpen()"
+      [class.block]="mobileMenuOpen()"
+      role="menu"
+      [attr.aria-hidden]="!mobileMenuOpen()">
+      <div class="container mx-auto px-4 py-4 space-y-2">
+        <a routerLink="/" 
+           routerLinkActive="text-indigo-400 font-semibold bg-gray-700" 
+           [routerLinkActiveOptions]="{exact: true}" 
+           class="block px-4 py-2 text-gray-300 hover:text-indigo-400 hover:bg-gray-700 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 focus:ring-offset-gray-800"
+           role="menuitem"
+           (click)="closeMobileMenu()"
+           aria-label="Navigate to Home page">Home</a>
+        <a routerLink="/configurator" 
+           routerLinkActive="text-indigo-400 font-semibold bg-gray-700" 
+           class="block px-4 py-2 text-gray-300 hover:text-indigo-400 hover:bg-gray-700 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 focus:ring-offset-gray-800"
+           role="menuitem"
+           (click)="closeMobileMenu()"
+           aria-label="Navigate to 3D Configurator">Configurator</a>
+        <a routerLink="/about" 
+           routerLinkActive="text-indigo-400 font-semibold bg-gray-700" 
+           class="block px-4 py-2 text-gray-300 hover:text-indigo-400 hover:bg-gray-700 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 focus:ring-offset-gray-800"
+           role="menuitem"
+           (click)="closeMobileMenu()"
+           aria-label="Navigate to About page">About</a>
+        <a routerLink="/faq" 
+           routerLinkActive="text-indigo-400 font-semibold bg-gray-700" 
+           class="block px-4 py-2 text-gray-300 hover:text-indigo-400 hover:bg-gray-700 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 focus:ring-offset-gray-800"
+           role="menuitem"
+           (click)="closeMobileMenu()"
+           aria-label="Navigate to FAQ page">FAQ</a>
+        <a routerLink="/contact" 
+           routerLinkActive="text-indigo-400 font-semibold bg-gray-700" 
+           class="block px-4 py-2 text-gray-300 hover:text-indigo-400 hover:bg-gray-700 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 focus:ring-offset-gray-800"
+           role="menuitem"
+           (click)="closeMobileMenu()"
+           aria-label="Navigate to Contact page">Contact</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<main id="main-content" class="flex-grow overflow-y-auto" role="main">
+  <router-outlet></router-outlet>
+</main>
