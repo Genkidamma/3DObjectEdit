@@ -230,6 +230,119 @@
           </button>
           @if(activePanel() === 'ai-texture') {
             <div id="ai-texture-panel" class="p-3 border-t border-gray-600 space-y-3" role="region" aria-labelledby="ai-texture-heading">
+              <!-- OpenAI API Key Management -->
+              <div class="bg-gray-600 rounded-lg p-3 space-y-2">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <label class="text-sm font-medium text-white">OpenAI API Key</label>
+                    <button 
+                      (click)="toggleApiKeyGuide()"
+                      class="text-xs text-indigo-400 hover:text-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-400 rounded px-1"
+                      aria-label="Show API key guide"
+                      title="How to get an OpenAI API key">
+                      ℹ️ Help
+                    </button>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    @if (apiKeyStatus() === 'valid') {
+                      <span class="text-xs text-green-400">✓ Valid</span>
+                    } @else if (apiKeyStatus() === 'invalid') {
+                      <span class="text-xs text-red-400">✗ Invalid</span>
+                    } @else if (apiKeySaved()) {
+                      <span class="text-xs text-gray-400">Saved</span>
+                    }
+                  </div>
+                </div>
+                
+                <!-- API Key Guide -->
+                @if (showApiKeyGuide()) {
+                  <div class="bg-gray-700 rounded-md p-3 space-y-2 text-xs text-gray-300 border border-gray-500">
+                    <h4 class="font-semibold text-white mb-2">How to Get Your OpenAI API Key:</h4>
+                    <ol class="list-decimal list-inside space-y-1.5 ml-2">
+                      <li>Go to <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer" class="text-indigo-400 hover:text-indigo-300 underline">platform.openai.com/api-keys</a></li>
+                      <li>Sign in or create a free OpenAI account</li>
+                      <li>Click <strong class="text-white">"+ Create new secret key"</strong></li>
+                      <li>Give it a name (e.g., "3D Configurator")</li>
+                      <li>Copy the key immediately (you won't see it again!)</li>
+                      <li>Paste it in the field below</li>
+                    </ol>
+                    <div class="mt-2 pt-2 border-t border-gray-600">
+                      <p class="text-yellow-300"><strong>Note:</strong> You'll need to add payment info to your OpenAI account to use the API. Free tier includes $5 credit.</p>
+                    </div>
+                    <button 
+                      (click)="toggleApiKeyGuide()"
+                      class="mt-2 text-xs text-gray-400 hover:text-gray-300 focus:outline-none">
+                      Close guide
+                    </button>
+                  </div>
+                }
+                @if (showApiKeyInput() || !apiKeySaved()) {
+                  <div class="space-y-2">
+                    <input 
+                      type="password"
+                      [value]="openAiApiKey()"
+                      (input)="openAiApiKey.set($any($event.target).value); apiKeyStatus.set('untested')"
+                      placeholder="sk-..."
+                      class="w-full bg-gray-700 border rounded-md px-3 py-2 text-white text-sm placeholder-gray-400 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none"
+                      [class.border-gray-500]="apiKeyStatus() === 'untested'"
+                      [class.border-green-500]="apiKeyStatus() === 'valid'"
+                      [class.border-red-500]="apiKeyStatus() === 'invalid'"
+                      aria-label="Enter your OpenAI API key"
+                      id="openai-api-key-input">
+                    <p class="text-xs text-gray-400">
+                      Your API key is stored locally in your browser and never sent to our servers.
+                    </p>
+                    <div class="flex gap-2">
+                      <button 
+                        (click)="testApiKey()"
+                        [disabled]="isTestingApiKey() || !openAiApiKey().trim()"
+                        class="flex-1 bg-teal-600 hover:bg-teal-700 disabled:bg-gray-500 disabled:cursor-not-allowed text-white text-sm font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-400 focus:ring-offset-2 focus:ring-offset-gray-600 flex items-center justify-center gap-2"
+                        aria-label="Test API key">
+                        @if (isTestingApiKey()) {
+                          <div class="w-4 h-4 border-2 border-dashed rounded-full animate-spin border-white"></div>
+                          <span>Testing...</span>
+                        } @else {
+                          <span>Test Key</span>
+                        }
+                      </button>
+                      <button 
+                        (click)="saveApiKey()"
+                        [disabled]="apiKeyStatus() === 'invalid'"
+                        class="flex-1 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-500 disabled:cursor-not-allowed text-white text-sm font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 focus:ring-offset-gray-600"
+                        aria-label="Save API key">
+                        Save
+                      </button>
+                      @if (apiKeySaved()) {
+                        <button 
+                          (click)="toggleApiKeyInput()"
+                          class="bg-gray-500 hover:bg-gray-600 text-white text-sm font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:ring-offset-gray-600"
+                          aria-label="Cancel">
+                          Cancel
+                        </button>
+                      }
+                    </div>
+                  </div>
+                } @else {
+                  <div class="flex items-center justify-between">
+                    <span class="text-xs text-gray-300">API key saved</span>
+                    <div class="flex gap-2">
+                      <button 
+                        (click)="toggleApiKeyInput()"
+                        class="text-xs text-indigo-400 hover:text-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 focus:ring-offset-gray-600 rounded px-2 py-1"
+                        aria-label="Change API key">
+                        Change
+                      </button>
+                      <button 
+                        (click)="removeApiKey()"
+                        class="text-xs text-red-400 hover:text-red-300 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 focus:ring-offset-gray-600 rounded px-2 py-1"
+                        aria-label="Remove API key">
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+                }
+              </div>
+              
               <p class="text-sm text-gray-400">Describe a material (e.g., "rusty metal panels", "glowing alien rock").</p>
               <textarea 
                 id="texture-prompt"

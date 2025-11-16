@@ -45,6 +45,12 @@ export class ConfiguratorComponent implements AfterViewInit, OnDestroy {
   aiTexturePrompt = signal('');
   generatedTextures = signal<{ albedo: string | null; normal: string | null }>({ albedo: null, normal: null });
   textureTiling = signal({ u: 1, v: 1 });
+  openAiApiKey = signal<string>('');
+  showApiKeyInput = signal(false);
+  apiKeySaved = signal(false);
+  isTestingApiKey = signal(false);
+  apiKeyStatus = signal<'untested' | 'valid' | 'invalid'>('untested');
+  showApiKeyGuide = signal(false);
 
   private renderer!: THREE.WebGLRenderer;
   private scene!: THREE.Scene;
@@ -58,11 +64,19 @@ export class ConfiguratorComponent implements AfterViewInit, OnDestroy {
 
   constructor() {
     this.setupEffects();
+    // Load saved OpenAI API key from localStorage
+    const savedApiKey = localStorage.getItem('openai_api_key');
+    if (savedApiKey) {
+      this.openAiApiKey.set(savedApiKey);
+      this.apiKeySaved.set(true);
+    }
+    
+    // Keep Gemini as fallback (optional)
     try {
       this.ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
     } catch (e) {
-      console.error("Failed to initialize Gemini API. API_KEY might be missing.", e);
-      this.errorMessage.set("Gemini API key is not configured.");
+      // Silently fail - user will use OpenAI instead
+      console.log("Gemini API not configured. Using OpenAI API instead.");
     }
   }
 
@@ -334,68 +348,146 @@ export class ConfiguratorComponent implements AfterViewInit, OnDestroy {
     this.textureTiling.update(current => ({...current, [axis]: value }));
   }
 
-  // --- AI Texture Generation ---
+  // --- API Key Management ---
+  async testApiKey(): Promise<void> {
+    const apiKey = this.openAiApiKey().trim();
+    if (!apiKey) {
+      this.errorMessage.set('Please enter an API key to test.');
+      return;
+    }
+    
+    if (!apiKey.startsWith('sk-')) {
+      this.errorMessage.set('Invalid API key format. Keys should start with "sk-".');
+      this.apiKeyStatus.set('invalid');
+      return;
+    }
+
+    this.isTestingApiKey.set(true);
+    this.errorMessage.set(null);
+    this.apiKeyStatus.set('untested');
+
+    try {
+      // Test the API key with a simple request
+      const response = await fetch('https://api.openai.com/v1/models', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`
+        }
+      });
+
+      if (response.ok) {
+        this.apiKeyStatus.set('valid');
+        this.errorMessage.set(null);
+        // Auto-save if valid
+        localStorage.setItem('openai_api_key', apiKey);
+        this.apiKeySaved.set(true);
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        const errorMsg = errorData.error?.message || 'Invalid API key or insufficient permissions.';
+        this.errorMessage.set(`API key test failed: ${errorMsg}`);
+        this.apiKeyStatus.set('invalid');
+      }
+    } catch (error) {
+      this.errorMessage.set('Failed to test API key. Please check your internet connection.');
+      this.apiKeyStatus.set('invalid');
+      console.error('API key test error:', error);
+    } finally {
+      this.isTestingApiKey.set(false);
+    }
+  }
+
+  saveApiKey(): void {
+    const apiKey = this.openAiApiKey().trim();
+    if (!apiKey) {
+      this.errorMessage.set('Please enter a valid OpenAI API key.');
+      return;
+    }
+    
+    // Basic validation - OpenAI keys start with sk-
+    if (!apiKey.startsWith('sk-')) {
+      this.errorMessage.set('Invalid OpenAI API key format. Keys should start with "sk-".');
+      return;
+    }
+    
+    localStorage.setItem('openai_api_key', apiKey);
+    this.apiKeySaved.set(true);
+    this.showApiKeyInput.set(false);
+    this.errorMessage.set(null);
+    // Reset status when saving manually (user can test later)
+    this.apiKeyStatus.set('untested');
+  }
+
+  removeApiKey(): void {
+    localStorage.removeItem('openai_api_key');
+    this.openAiApiKey.set('');
+    this.apiKeySaved.set(false);
+    this.apiKeyStatus.set('untested');
+  }
+
+  toggleApiKeyInput(): void {
+    this.showApiKeyInput.update(v => !v);
+    this.errorMessage.set(null);
+  }
+
+  toggleApiKeyGuide(): void {
+    this.showApiKeyGuide.update(v => !v);
+  }
+
+  // --- AI Texture Generation with OpenAI ---
   async generateAiTexture(): Promise<void> {
-    if (!this.ai || this.isGeneratingTexture() || !this.aiTexturePrompt()) return;
+    if (this.isGeneratingTexture() || !this.aiTexturePrompt()) return;
+    
+    const apiKey = this.openAiApiKey();
+    if (!apiKey) {
+      this.errorMessage.set('Please enter your OpenAI API key to generate textures.');
+      this.showApiKeyInput.set(true);
+      return;
+    }
+
     this.isGeneratingTexture.set(true);
     this.errorMessage.set(null);
 
     try {
       const texturePrompt = this.aiTexturePrompt();
       
-      const materialPropertiesPromise = this.ai.models.generateContent({
-          model: 'gemini-2.5-flash',
-          contents: `Analyze the material description "${texturePrompt}" and determine appropriate PBR values for roughness and metalness.`,
-          config: {
-              responseMimeType: "application/json",
-              responseSchema: {
-                  type: Type.OBJECT,
-                  properties: {
-                      roughness: { type: Type.NUMBER, description: "A value from 0.0 (smooth) to 1.0 (rough)." },
-                      metalness: { type: Type.NUMBER, description: "A value from 0.0 (non-metal) to 1.0 (metal)." }
-                  },
-                  required: ["roughness", "metalness"]
-              }
-          }
-      });
+      // Use OpenAI API for image generation
+      const albedoPromise = this.generateOpenAIImage(
+        apiKey,
+        `A high-resolution, photorealistic, seamless, tileable PBR albedo (base color) texture map of ${texturePrompt}. The texture should be detailed and realistic.`
+      );
 
-      const albedoPromise = this.ai.models.generateImages({
-        model: 'imagen-3.0-generate-002',
-        prompt: `A high-resolution, photorealistic, seamless, tileable PBR albedo (base color) texture map of ${texturePrompt}.`,
-        config: { numberOfImages: 1, outputMimeType: 'image/png' }
-      });
+      const normalPromise = this.generateOpenAIImage(
+        apiKey,
+        `A seamless, tileable, tangent-space normal map for a PBR material of: ${texturePrompt}. OpenGL format. The image should be predominantly purple-blue, representing surface detail and depth.`
+      );
 
-      const normalPromise = this.ai.models.generateImages({
-        model: 'imagen-3.0-generate-002',
-        prompt: `A seamless, tileable, tangent-space normal map for a PBR material of: ${texturePrompt}. OpenGL format. The image should be predominantly purple-blue, representing surface detail.`,
-        config: { numberOfImages: 1, outputMimeType: 'image/png' }
-      });
+      // Get material properties using OpenAI's chat completion
+      const materialPropertiesPromise = this.getMaterialProperties(apiKey, texturePrompt);
 
-      const [materialResponse, albedoResponse, normalResponse] = await Promise.all([materialPropertiesPromise, albedoPromise, normalPromise]);
+      const [albedoUrl, normalUrl, materialProps] = await Promise.all([
+        albedoPromise,
+        normalPromise,
+        materialPropertiesPromise
+      ]);
 
       // --- Validate AI responses ---
-      if (!materialResponse.text) {
-        throw new Error("AI failed to generate material properties (roughness/metalness). The prompt may have been blocked. Please try a different prompt.");
+      if (!albedoUrl) {
+        throw new Error("Failed to generate the Base Color texture. Please check your API key and try again.");
       }
-      if (!albedoResponse.generatedImages || albedoResponse.generatedImages.length === 0) {
-        throw new Error("AI failed to generate the Base Color texture. The prompt may have been blocked by safety filters. Please try a different prompt.");
-      }
-      if (!normalResponse.generatedImages || normalResponse.generatedImages.length === 0) {
-        throw new Error("AI failed to generate the Normal Map texture. The prompt may have been blocked by safety filters. Please try a different prompt.");
+      if (!normalUrl) {
+        throw new Error("Failed to generate the Normal Map texture. Please check your API key and try again.");
       }
 
-      // --- Process and apply textures ---
-      const albedoImage = albedoResponse.generatedImages[0].image.imageBytes;
-      const normalImage = normalResponse.generatedImages[0].image.imageBytes;
+      // Convert image URLs to base64 data URLs
+      const albedoDataUrl = await this.imageUrlToDataUrl(albedoUrl);
+      const normalDataUrl = await this.imageUrlToDataUrl(normalUrl);
       
-      const albedoUrl = `data:image/png;base64,${albedoImage}`;
-      const normalUrl = `data:image/png;base64,${normalImage}`;
-      this.generatedTextures.set({ albedo: albedoUrl, normal: normalUrl });
+      this.generatedTextures.set({ albedo: albedoDataUrl, normal: normalDataUrl });
 
       const textureLoader = new THREE.TextureLoader();
       const maxAnisotropy = this.renderer.capabilities.getMaxAnisotropy();
       
-      const albedoTexture = await textureLoader.loadAsync(albedoUrl);
+      const albedoTexture = await textureLoader.loadAsync(albedoDataUrl);
       albedoTexture.wrapS = THREE.RepeatWrapping;
       albedoTexture.wrapT = THREE.RepeatWrapping;
       albedoTexture.colorSpace = THREE.SRGBColorSpace;
@@ -405,7 +497,7 @@ export class ConfiguratorComponent implements AfterViewInit, OnDestroy {
       albedoTexture.repeat.set(this.textureTiling().u, this.textureTiling().v);
       albedoTexture.needsUpdate = true;
 
-      const normalTexture = await textureLoader.loadAsync(normalUrl);
+      const normalTexture = await textureLoader.loadAsync(normalDataUrl);
       normalTexture.wrapS = THREE.RepeatWrapping;
       normalTexture.wrapT = THREE.RepeatWrapping;
       normalTexture.minFilter = THREE.LinearMipmapLinearFilter;
@@ -423,18 +515,19 @@ export class ConfiguratorComponent implements AfterViewInit, OnDestroy {
       });
       
       // --- Process and apply material properties ---
-      try {
-        const jsonString = materialResponse.text.trim();
-        const props = JSON.parse(jsonString) as { roughness: number; metalness: number };
+      if (materialProps) {
         this.material.update(current => ({
           ...current,
           color: '#ffffff', // Reset color to white to show texture fully
-          roughness: Math.max(0, Math.min(1, props.roughness)),
-          metalness: Math.max(0, Math.min(1, props.metalness)),
+          roughness: Math.max(0, Math.min(1, materialProps.roughness)),
+          metalness: Math.max(0, Math.min(1, materialProps.metalness)),
         }));
-      } catch (e) {
-          console.error("Failed to parse material properties from AI", e);
-          throw new Error("AI returned invalid material data. Could not apply roughness/metalness.");
+      } else {
+        // Default values if material properties couldn't be determined
+        this.material.update(current => ({
+          ...current,
+          color: '#ffffff',
+        }));
       }
 
     } catch (error) {
@@ -446,6 +539,98 @@ export class ConfiguratorComponent implements AfterViewInit, OnDestroy {
       }
     } finally {
        this.isGeneratingTexture.set(false);
+    }
+  }
+
+  // --- OpenAI API Helper Methods ---
+  private async generateOpenAIImage(apiKey: string, prompt: string): Promise<string | null> {
+    try {
+      const response = await fetch('https://api.openai.com/v1/images/generations', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+          model: 'dall-e-3',
+          prompt: prompt,
+          n: 1,
+          size: '1024x1024',
+          response_format: 'url'
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error?.message || `OpenAI API error: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      return data.data?.[0]?.url || null;
+    } catch (error) {
+      console.error('OpenAI image generation error:', error);
+      throw error;
+    }
+  }
+
+  private async getMaterialProperties(apiKey: string, materialDescription: string): Promise<{ roughness: number; metalness: number } | null> {
+    try {
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
+          messages: [
+            {
+              role: 'system',
+              content: 'You are a material properties expert. Analyze material descriptions and return JSON with roughness (0.0-1.0) and metalness (0.0-1.0) values.'
+            },
+            {
+              role: 'user',
+              content: `Analyze the material description "${materialDescription}" and return a JSON object with "roughness" and "metalness" values. Roughness: 0.0 is smooth/glossy, 1.0 is rough/matte. Metalness: 0.0 is non-metal, 1.0 is metal. Return only valid JSON.`
+            }
+          ],
+          response_format: { type: 'json_object' },
+          temperature: 0.3
+        })
+      });
+
+      if (!response.ok) {
+        console.warn('Failed to get material properties from OpenAI, using defaults');
+        return null;
+      }
+
+      const data = await response.json();
+      const content = data.choices?.[0]?.message?.content;
+      if (!content) return null;
+
+      const props = JSON.parse(content);
+      return {
+        roughness: Math.max(0, Math.min(1, parseFloat(props.roughness) || 0.5)),
+        metalness: Math.max(0, Math.min(1, parseFloat(props.metalness) || 0.1))
+      };
+    } catch (error) {
+      console.warn('Error getting material properties:', error);
+      return null;
+    }
+  }
+
+  private async imageUrlToDataUrl(url: string): Promise<string> {
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    } catch (error) {
+      console.error('Error converting image URL to data URL:', error);
+      throw new Error('Failed to process generated image');
     }
   }
   

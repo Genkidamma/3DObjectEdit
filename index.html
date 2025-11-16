@@ -10,16 +10,27 @@
   -->
   <base href="./">
   
+  <!-- DNS Prefetch & Preconnect for Performance & SEO -->
+  <link rel="dns-prefetch" href="https://cdn.tailwindcss.com"/>
+  <link rel="dns-prefetch" href="https://unpkg.com"/>
+  <link rel="dns-prefetch" href="https://esm.sh"/>
+  <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin=""/>
+  <link rel="preconnect" href="https://unpkg.com" crossorigin=""/>
+  <link rel="preconnect" href="https://esm.sh" crossorigin=""/>
+  
   <!-- Primary Meta Tags -->
   <title>3D Model Configurator - AI-Powered Material Editor & OBJ Viewer</title>
   <meta name="title" content="3D Model Configurator - AI-Powered Material Editor &amp; OBJ Viewer"/>
-  <meta name="description" content="Professional 3D model configurator with AI-powered material generation. Upload OBJ files, customize materials, lighting, and textures in real-time. Export to GLB/STL. Free online tool powered by Three.js and Gemini AI."/>
-  <meta name="keywords" content="3D configurator, 3D viewer, OBJ viewer, 3D model viewer, online 3D viewer, Three.js, AI material generator, PBR textures, GLB exporter, STL exporter, 3D model editor, web-based 3D tool, material editor, texture generator"/>
+  <meta name="description" content="Free online 3D model configurator with AI-powered material generation. Upload OBJ files, customize materials, lighting, and textures in real-time. Export to GLB/STL formats. No installation required - works in your browser. Powered by Three.js and Gemini AI."/>
+  <meta name="keywords" content="3D configurator, 3D viewer, OBJ viewer, 3D model viewer, online 3D viewer, Three.js, AI material generator, PBR textures, GLB exporter, STL exporter, 3D model editor, web-based 3D tool, material editor, texture generator, free 3D viewer, browser 3D editor, 3D model customization, AI texture generation, 3D printing, WebGL viewer"/>
   <meta name="author" content="3D Configurator Team"/>
   <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"/>
   <meta name="language" content="English"/>
   <meta name="revisit-after" content="7 days"/>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <meta name="format-detection" content="telephone=no"/>
+  <meta name="geo.region" content="US"/>
+  <meta name="geo.placename" content="Global"/>
   
   <!-- Canonical URL - UPDATE THIS with your actual domain -->
   <link rel="canonical" href="https://yourusername.github.io/repository-name/"/>
@@ -166,6 +177,74 @@
         "position": 2,
         "name": "Configurator",
         "item": "https://yourusername.github.io/repository-name/#/configurator"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "About",
+        "item": "https://yourusername.github.io/repository-name/#/about"
+      },
+      {
+        "@type": "ListItem",
+        "position": 4,
+        "name": "FAQ",
+        "item": "https://yourusername.github.io/repository-name/#/faq"
+      },
+      {
+        "@type": "ListItem",
+        "position": 5,
+        "name": "Contact",
+        "item": "https://yourusername.github.io/repository-name/#/contact"
+      }
+    ]
+  }
+  </script>
+  
+  <!-- FAQPage Schema for better FAQ SEO -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What file formats are supported?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Currently, we support .obj files for model import. Once you have customized your model, you can export the entire scene as a .glb file, which is a highly optimized format perfect for web and AR applications."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is this tool free to use?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes, the 3D Configurator is completely free for personal and commercial use. Our goal is to provide accessible tools for the entire creative community."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is AI Material Generation?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "This feature uses the Gemini API to interpret your text descriptions (e.g., 'old cracked leather') and procedurally generates a full set of PBR (Physically-Based Rendering) texture maps, including color, normal, roughness, and metalness, to create a realistic material."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Do I need to install any software?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. The entire application runs in your web browser. There is nothing to download or install. We recommend using an up-to-date version of a modern browser like Chrome, Firefox, or Edge for the best performance."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I use the exported models in my game or project?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Absolutely! The exported .glb files are standard and can be used in most modern game engines (like Unity, Unreal Engine), 3D software (like Blender, 3ds Max), and web-based 3D frameworks."
+        }
       }
     ]
   }
@@ -243,5 +322,5 @@
   <!-- Skip to main content link for accessibility -->
   <a href="#main-content" class="skip-link">Skip to main content</a>
   <app-root></app-root>
-<script src="main-JYGQLZPU.js" type="module"></script></body>
+<script src="main-5JASIJQU.js" type="module"></script></body>
 </html>
